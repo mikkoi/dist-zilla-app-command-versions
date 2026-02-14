@@ -1,5 +1,5 @@
-package Dist::Zilla::Plugin::VersionsVersionProvider 0.001;
-# ABSTRACT: read the version from the module's header line
+package Dist::Zilla::Plugin::PackageDeclarationVersionProvider v0.0.1;
+# ABSTRACT: read the version from the module's package declaration header line
 
 use Path::Tiny qw( path );
 
@@ -28,7 +28,7 @@ sub provide_version {
     my $content = path($main_module->name)->slurp_utf8;
     ($version) = $content =~ m{
         ^(?: \s*package\s+[\w:]+\s+)           # package declaration
-        ([[:lower:][:upper:][:digit:]._-]+)   # old version (digits, letters, dots, underscores, dashes)
+        ([v]{0,1}[[:lower:][:upper:][:digit:]._-]+)   # old version (digits, letters, dots, underscores, dashes)
         (?: \s*)                              # semicolon
         }msx;
 

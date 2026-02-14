@@ -32,36 +32,6 @@ has template => (
     # default => sub { return q{} },
 );
 
-sub stringify {
-    my ($self) = @_;
-    my ($style, $template) = ($self->style, $self->template);
-    return "style=$style;template=$template";
-}
-
-sub register_prereqs {
-    my $self = shift;
-    $self->zilla->register_prereqs(
-        {
-            type  => 'requires',
-            phase => 'develop',
-        },
-        'Dist::Zilla::App::Command::versions' => 0,
-
-        # TODO also extract list of policies used in file $self->critic_config
-    );
-
-    return $self->zilla->register_prereqs(
-        {
-            type  => 'requires',
-            phase => 'develop',
-        },
-        'Versions' => 0,
-
-        # TODO also extract list of policies used in file $self->critic_config
-    );
-}
-
-
 # TODO If there is no / optional name [Versions]
 # Leave plugin_name Versions
 
@@ -91,6 +61,38 @@ around BUILDARGS => sub {
           %params,
     }
 };
+
+no Moose;
+
+sub stringify {
+    my ($self) = @_;
+    my ($style, $template) = ($self->style, $self->template);
+    return "style=$style;template=$template";
+}
+
+sub register_prereqs {
+    my $self = shift;
+    $self->zilla->register_prereqs(
+        {
+            type  => 'requires',
+            phase => 'develop',
+        },
+        'Dist::Zilla::App::Command::versions' => 0,
+
+        # TODO also extract list of policies used in file $self->critic_config
+    );
+
+    return $self->zilla->register_prereqs(
+        {
+            type  => 'requires',
+            phase => 'develop',
+        },
+        'Versions' => 0,
+
+        # TODO also extract list of policies used in file $self->critic_config
+    );
+}
+
 
 use overload
     '.' => \&stringify,

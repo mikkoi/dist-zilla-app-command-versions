@@ -153,6 +153,9 @@ sub execute {
     if( $location ne 'header' && $location ne 'body' ) {
         $self->usage_error("Invalid location: $location (must be 'header' or 'body')");
     }
+    if( $location ne 'header' ) {
+        $self->usage_error("Invalid location: $location (Currently only 'header' is supported)");
+    }
 
     # Get template if specified
     my $template = $config{template};
@@ -235,9 +238,9 @@ sub set_file { ## no critic (Subroutines::ProhibitManyArgs)
         # Updated regex to handle new version format
         ## no critic (RegularExpressions::ProhibitComplexRegexes)
         $changed = $content =~ s{
-            ^(\s*package\s+[\w:]+\s+)           # package declaration
-            [[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
-            (\s*;)                              # semicolon
+            ^(\s*package\s+[\w:]+\s+)              # package declaration
+            [v]?[[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
+            (\s*;)                                 # semicolon
         }{$1$new_version$2}msxg;
 
     } elsif ($is_module && $style eq 'body') {
@@ -308,9 +311,9 @@ sub update_file { ## no critic (Subroutines::ProhibitManyArgs)
         # Replace with: package Package::Name 0.010;
         ## no critic (RegularExpressions::ProhibitComplexRegexes)
         $changed = $content =~ s{
-            ^(\s*package\s+[\w:]+\s+)           # package declaration
-            [[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
-            (\s*)                               # no semicolon, new syntax allows a block after version
+            ^(\s*package\s+[\w:]+\s+)                   # package declaration
+            [v]{0,1}[[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
+            (\s*)                                       # no semicolon, new syntax allows a block after version
         }{$1$new_version$2}msxg;
     } elsif ($is_module && $style eq 'body') {
         # Match: our $VERSION = '0.009';
@@ -322,7 +325,7 @@ sub update_file { ## no critic (Subroutines::ProhibitManyArgs)
         $changed = $content =~ s{
             ^(\s*(?:our\s+)?\$VERSION\s*=\s*)   # $VERSION assignment
             (?:['"])?                            # optional quote
-            [[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
+            [v]{0,1}[[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
             (?:['"])?                            # optional quote
             (\s*;)                              # semicolon
         }{$1'$new_version'$2}msxg;
@@ -336,7 +339,7 @@ sub update_file { ## no critic (Subroutines::ProhibitManyArgs)
         $changed = $content =~ s{
             ^(\s*(?:our\s+)?\$VERSION\s*=\s*)   # $VERSION assignment
             (?:['"])?                            # optional quote
-            [[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
+            [v]{0,1}[[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
             (?:['"])?                            # optional quote
             (\s*;)                              # semicolon
         }{$1'$new_version'$2}msxg;
@@ -366,7 +369,7 @@ sub remove_file { ## no critic (Subroutines::ProhibitManyArgs)
         ## no critic (RegularExpressions::ProhibitComplexRegexes)
         $changed = $content =~ s{
             ^(\s*package\s+[\w:]+\s+)           # package declaration
-            [[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
+            [v]{0,1}[[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
             (\s*)                               # no semicolon, new syntax allows a block after version
         }{$1}msxg;
 
@@ -380,7 +383,7 @@ sub remove_file { ## no critic (Subroutines::ProhibitManyArgs)
         $changed = $content =~ s{
             ^(\s*(?:our\s+)?\$VERSION\s*=\s*)   # $VERSION assignment
             (?:['"])?                           # optional quote
-            [[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
+            [v]{0,1}[[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
             (?:['"])?                           # optional quote
             (\s*;\s*[\r])                       # semicolon and line feed
         }{}msxg;
@@ -394,7 +397,7 @@ sub remove_file { ## no critic (Subroutines::ProhibitManyArgs)
         $changed = $content =~ s{
             ^(\s*(?:our\s+)?\$VERSION\s*=\s*)   # $VERSION assignment
             (?:['"])?                           # optional quote
-            [[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
+            [v]{0,1}[[:lower:][:upper:][:digit:]._-]+   # old version (digits, letters, dots, underscores, dashes)
             (?:['"])?                           # optional quote
             (\s*;\s*[\r])                       # semicolon and line feed
         }{$1'$new_version'$2}msxg;
